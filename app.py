@@ -24,7 +24,9 @@ def fetch_news(api_key, page_size=50):
             "category": "general"
         })
     return pd.DataFrame(rows)
-
+def save_news(news_df):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    news_df.to_csv(f"news_stream/news_{timestamp}.csv", index=False) 
 def main():
     st.title("📰 News Sentiment Dashboard")
     api_key = st.secrets.get("NEWSAPI_KEY")
@@ -34,6 +36,7 @@ def main():
 
     model = load_model()
     df = fetch_news(api_key)
+    save_news(df)
     if df.empty:
         st.warning("No articles fetched.")
         return
