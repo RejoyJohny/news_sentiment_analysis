@@ -8,14 +8,20 @@ import glob
 
 
 
+
 all_files = glob.glob("processed_news/*.csv")
 
-if all_files:
-    df = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
-    
-else:
-    df = pd.DataFrame(columns=["text", "publishedAt", "source", "category", "sent_label"])
+dfs = []
+for f in all_files:
+    try:
+        dfs.append(pd.read_csv(f))
+    except Exception as e:
+        print(f"⚠️ Skipping {f} due to error: {e}")
 
+if dfs:
+    df = pd.concat(dfs, ignore_index=True)
+else:
+    df = pd.DataFrame(columns=["text", "publishedAt", "source", "category", "sentiment"])
 
 # Keep your sidebar filters and visualization as-is
 
