@@ -7,8 +7,14 @@ from datetime import datetime
 import glob
 
 
+
 all_files = glob.glob("processed_news/*.csv")
-df = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+
+if all_files:
+    df = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+else:
+    df = pd.DataFrame(columns=["text", "publishedAt", "source", "category", "sent_label"])
+
 
 # Keep your sidebar filters and visualization as-is
 
