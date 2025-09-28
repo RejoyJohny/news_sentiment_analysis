@@ -12,6 +12,7 @@ all_files = glob.glob("processed_news/*.csv")
 
 if all_files:
     df = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+    
 else:
     df = pd.DataFrame(columns=["text", "publishedAt", "source", "category", "sent_label"])
 
@@ -57,6 +58,7 @@ def main():
         return
 
     df["publishedAt"] = pd.to_datetime(df["publishedAt"], errors="coerce")
+    sent_label_col = "sent_label" if "sent_label" in df.columns else None
 
 
     st.sidebar.header("Filters")
@@ -74,9 +76,15 @@ def main():
 
     st.markdown(f"### Showing {len(df)} news items")
     for _, row in df.iterrows():
+        date_str = row["publishedAt"].date() if pd.notna(row["publishedAt"]) else "Unknown"
+        source_str = row["source"] if "source" in row else "Unknown"
+        sent_str = row[sent_label_col] if sent_label_col else "❌ Unknown"
+
         st.markdown(f"#### {row['text']}")
-        st.write(f"📅 {row['publishedAt'].date() if pd.notna(row['publishedAt']) else 'Unknown'}  | 🗞️ {row['source']}  | {row['sent_label']}")
+        st.write(f"📅 {date_str}  | 🗞️ {source_str}  | {sent_str}")
         st.markdown("---")
+
 
 if __name__ == "__main__":
     main()
+    
