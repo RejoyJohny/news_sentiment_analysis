@@ -27,7 +27,7 @@ hashingTF = HashingTF(inputCol="filtered", outputCol="rawFeatures", numFeatures=
 featurized_data = hashingTF.transform(filtered_data)
 
 # Load pre-trained ML model (scikit-learn)
-model = joblib.load("sentiment_model.pkl")
+model = joblib.load("model.pkl")
 
 @pandas_udf("string", PandasUDFType.SCALAR)
 def predict_sentiment(title_series: pd.Series) -> pd.Series:

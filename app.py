@@ -4,6 +4,13 @@ import pandas as pd
 import requests
 import joblib
 from datetime import datetime
+import glob
+
+
+all_files = glob.glob("processed_news/*.csv")
+df = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+
+# Keep your sidebar filters and visualization as-is
 
 @st.cache_resource
 def load_model():
@@ -42,8 +49,7 @@ def main():
         return
 
     df["publishedAt"] = pd.to_datetime(df["publishedAt"], errors="coerce")
-    df["sentiment"] = model.predict(df["text"].fillna("").astype(str))
-    df["sent_label"] = df["sentiment"].map({1: "✅ Positive", 0: "❌ Negative"})
+
 
     st.sidebar.header("Filters")
     # Date filter
