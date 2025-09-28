@@ -58,28 +58,39 @@ def main():
 
     model = load_model()
     df = fetch_news(api_key)
-    save_news(df)
+
     if df.empty:
         st.warning("No articles fetched.")
         return
 
+    # Predict sentiment using your trained pipeline
+    df["sentiment"] = model.predict(df["text"].fillna(""))
+    df["sent_label"] = df["sentiment"].map({1: "✅ Positive", 0: "❌ Negative"})
+
+    # Save news for streaming / record-keeping
+    save_news(df)
+
+    # Convert publishedAt to datetime
     df["publishedAt"] = pd.to_datetime(df["publishedAt"], errors="coerce")
     sent_label_col = "sent_label" if "sent_label" in df.columns else None
 
-
+    # ---------------------------
+    # Sidebar Filters
+    # ---------------------------
     st.sidebar.header("Filters")
-    # Date filter
     min_date = df["publishedAt"].min().date()
     max_date = df["publishedAt"].max().date()
     date_range = st.sidebar.date_input("Date range", (min_date, max_date))
     if isinstance(date_range, tuple):
         df = df[(df["publishedAt"].dt.date >= date_range[0]) & (df["publishedAt"].dt.date <= date_range[1])]
 
-    # Source filter
     sources = sorted(df["source"].dropna().unique().tolist())
     sel_sources = st.sidebar.multiselect("Source(s)", sources, default=sources)
     df = df[df["source"].isin(sel_sources)]
 
+    # ---------------------------
+    # Display news
+    # ---------------------------
     st.markdown(f"### Showing {len(df)} news items")
     for _, row in df.iterrows():
         date_str = row["publishedAt"].date() if pd.notna(row["publishedAt"]) else "Unknown"
@@ -93,4 +104,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+        
+
